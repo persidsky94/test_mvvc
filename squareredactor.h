@@ -16,14 +16,13 @@ public:
 	explicit squareRedactor(QWidget *parent = 0);
 	~squareRedactor();
 	void initWithParams(squareParams params);
+	squareParams constructParams();
 
 signals: //to item
 	void setParams(squareParams params);
 
 private:
 	Ui::squareRedactor *ui;
-
-	squareParams constructParams();
 
 //slots from item
 	void updateParams(squareParams params);

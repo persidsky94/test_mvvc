@@ -16,14 +16,13 @@ public:
 	explicit circleRedactor(QWidget *parent = 0);
 	~circleRedactor();
 	void initWithParams(circleParams params);
+	circleParams constructParams();
 
 signals: //to item
 	void setParams(circleParams params);
 
 private:
 	Ui::circleRedactor *ui;
-
-	circleParams constructParams();
 
 //slots from item
 	void updateParams(circleParams params);

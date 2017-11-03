@@ -1,26 +1,72 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "squareitem.h"
-#include "circleitem.h"
-#include "redactorsmanager.h"
-#include "gridscene.h"
+#include <QDialog>
+#include <QDialogButtonBox>
+
 
 MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent),
 	ui(new Ui::MainWindow)
 {
 	ui->setupUi(this);
-	auto *redManager = new redactorsManager(this);
-	this->ui->sceneW->layout()->addWidget(redManager->getWidget());
-	auto scene = new GridScene(this);
+	bindActions();
+	setDefaultSquareParams();
+	setDefaultCircleParams();
+	_redManager = new redactorsManager(this);
+	_scene = new GridScene(this);
+	bindSceneAndRedactorsManager();
+	this->ui->sceneW->layout()->addWidget(_redManager->getWidget());
+	ui->graphicsView->setScene(_scene);
 
+	addNewSquareItem(_defaultSquareParams);
+	addNewSquareItem(_defaultSquareParams);
+	addNewCircleItem(_defaultCircleParams);
+	addNewCircleItem(_defaultCircleParams);
+}
+
+void MainWindow::addNewSquareItem(squareParams params)
+{
+	auto square = new squareItem(params, this);
+	addItemToScene(square);
+	square->itemSelected(square);
+}
+
+void MainWindow::addNewCircleItem(circleParams params)
+{
+	auto circle = new circleItem(params, this);
+	addItemToScene(circle);
+	circle->itemSelected(circle);
+}
+
+void MainWindow::addItemToScene(MoveItem *item)
+{
+	_scene->addItem(item);
+	bindItemToScene(item);
+}
+
+void MainWindow::bindItemToScene(MoveItem *item)
+{
+	QObject::connect(item, &MoveItem::itemSelected, _scene, &GridScene::on_sceneItemSelected);
+}
+
+void MainWindow::bindSceneAndRedactorsManager()
+{
+	QObject::connect(_scene, &GridScene::sceneItemSelected, _redManager, &redactorsManager::changeRedactedItem);
+}
+
+void MainWindow::setDefaultSquareParams()
+{
 	squareParams defaultParams;
 	defaultParams.name = QString("square_name");
-	defaultParams.x = 15;
-	defaultParams.y = 15;
+	defaultParams.x = 0;
+	defaultParams.y = 0;
 	defaultParams.density = 15;
 	defaultParams.width = 15;
+	_defaultSquareParams = defaultParams;
+}
 
+void MainWindow::setDefaultCircleParams()
+{
 	circleParams defaultCircleParams;
 	defaultCircleParams.name = QString("circle_name");
 	defaultCircleParams.x = 0;
@@ -28,22 +74,53 @@ MainWindow::MainWindow(QWidget *parent) :
 	defaultCircleParams.density = 15;
 	defaultCircleParams.radius = 25;
 	defaultCircleParams.originality = 2;
+	_defaultCircleParams = defaultCircleParams;
+}
 
-	auto square1 = new squareItem(defaultParams, this);
-	auto square2 = new squareItem(defaultParams, this);
-	auto circle1 = new circleItem(defaultCircleParams, this);
-	auto circle2 = new circleItem(defaultCircleParams, this);
-	scene->addItem(square1);
-	scene->addItem(square2);
-	scene->addItem(circle1);
-	scene->addItem(circle2);
-	ui->graphicsView->setScene(scene);
-	QObject::connect(square1, &MoveItem::itemSelected, scene, &GridScene::on_sceneItemSelected);
-	QObject::connect(square2, &MoveItem::itemSelected, scene, &GridScene::on_sceneItemSelected);
-	QObject::connect(circle1, &MoveItem::itemSelected, scene, &GridScene::on_sceneItemSelected);
-	QObject::connect(circle2, &MoveItem::itemSelected, scene, &GridScene::on_sceneItemSelected);
-	QObject::connect(scene, &GridScene::sceneItemSelected, redManager, &redactorsManager::changeRedactedItem);
+void MainWindow::on_actionAddSquare_triggered()
+{
+	auto dialog = new QDialog;
+	auto layout = new QVBoxLayout(dialog);
+	auto initRedactor = new squareRedactor(dialog);
+	initRedactor->initWithParams(_defaultSquareParams);
+	initRedactor->show();
+	auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, dialog);
+	layout->addWidget(initRedactor);
+	layout->addWidget(buttonBox);
+	connect(buttonBox, &QDialogButtonBox::accepted, dialog, &QDialog::accept);
+	connect(buttonBox, &QDialogButtonBox::rejected, dialog, &QDialog::reject);
+	if (dialog->exec())
+	{
+		auto params = initRedactor->constructParams();
+		addNewSquareItem(params);
+	}
+	delete dialog;
+}
 
+void MainWindow::on_actionAddCircle_triggered()
+{
+	auto dialog = new QDialog;
+	auto layout = new QVBoxLayout(dialog);
+	auto initRedactor = new circleRedactor(dialog);
+	initRedactor->initWithParams(_defaultCircleParams);
+	initRedactor->show();
+	auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, dialog);
+	layout->addWidget(initRedactor);
+	layout->addWidget(buttonBox);
+	connect(buttonBox, &QDialogButtonBox::accepted, dialog, &QDialog::accept);
+	connect(buttonBox, &QDialogButtonBox::rejected, dialog, &QDialog::reject);
+	if (dialog->exec())
+	{
+		auto params = initRedactor->constructParams();
+		addNewCircleItem(params);
+	}
+	delete dialog;
+}
+
+void MainWindow::bindActions()
+{
+	connect(this->ui->actionAddSquare, &QAction::triggered, this, &MainWindow::on_actionAddSquare_triggered);
+	connect(this->ui->actionAddCircle, &QAction::triggered, this, &MainWindow::on_actionAddCircle_triggered);
 }
 
 MainWindow::~MainWindow()

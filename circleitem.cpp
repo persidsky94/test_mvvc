@@ -4,6 +4,7 @@ circleItem::circleItem(circleParams params, QObject *parent)
 	:MoveItem(parent),_params(params)
 {
 	connect(this, &circleItem::positionIsSet, this, &circleItem::on_positionIsSet);
+	setParams(params);
 }
 
 circleItem::~circleItem(){}
@@ -57,6 +58,8 @@ void circleItem::setParams(circleParams params)
 	setPos(newCoordinates);
 	auto curBoundingRect = boundingRect();
 	emit paramsChanged(_params);
-	this->scene()->update(mapRectToScene(prevBoundingRect));
-	this->scene()->update(mapRectToScene(curBoundingRect));
-}
+	if (this->scene())
+	{
+		this->scene()->update(mapRectToScene(prevBoundingRect));
+		this->scene()->update(mapRectToScene(curBoundingRect));
+	}}

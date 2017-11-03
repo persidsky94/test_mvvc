@@ -1,9 +1,10 @@
 #include "squareitem.h"
 
 squareItem::squareItem(squareParams params, QObject *parent)
-	:MoveItem(parent),_params(params)
+	:MoveItem(parent), _params(params)
 {
 	connect(this, &squareItem::positionIsSet, this, &squareItem::on_positionIsSet);
+	setParams(params);
 }
 
 squareItem::~squareItem(){}
@@ -56,6 +57,9 @@ void squareItem::setParams(squareParams params)
 	setPos(newCoordinates);
 	auto curBoundingRect = boundingRect();
 	emit paramsChanged(_params);
-	this->scene()->update(mapRectToScene(prevBoundingRect));
-	this->scene()->update(mapRectToScene(curBoundingRect));
+	if (this->scene())
+	{
+		this->scene()->update(mapRectToScene(prevBoundingRect));
+		this->scene()->update(mapRectToScene(curBoundingRect));
+	}
 }

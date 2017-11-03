@@ -2,6 +2,10 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include "squareitem.h"
+#include "circleitem.h"
+#include "redactorsmanager.h"
+#include "gridscene.h"
 
 namespace Ui {
 class MainWindow;
@@ -17,6 +21,23 @@ public:
 
 private:
 	Ui::MainWindow *ui;
+
+	GridScene * _scene = NULL;
+	redactorsManager *_redManager = NULL;
+	squareParams _defaultSquareParams;
+	circleParams _defaultCircleParams;
+
+	void addNewSquareItem(squareParams params);
+	void addNewCircleItem(circleParams params);
+	void addItemToScene(MoveItem *item);
+	void bindSceneAndRedactorsManager();
+	void bindItemToScene(MoveItem *item);
+	void bindActions();
+	void setDefaultSquareParams();
+	void setDefaultCircleParams();
+
+	void on_actionAddSquare_triggered();
+	void on_actionAddCircle_triggered();
 };
 
 #endif // MAINWINDOW_H
