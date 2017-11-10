@@ -12,16 +12,15 @@ MainWindow::MainWindow(QWidget *parent) :
 	bindActions();
 	setDefaultSquareParams();
 	setDefaultCircleParams();
+	_listManager = new itemListManager(this);
 	_redManager = new redactorsManager(this);
 	_scene = new GridScene(this);
 	bindSceneAndRedactorsManager();
+	bindSceneAndItemListManager();
+	bindSelfAndItemListManager();
+	this->ui->sceneW->layout()->addWidget(_listManager->getWidget());
 	this->ui->sceneW->layout()->addWidget(_redManager->getWidget());
 	ui->graphicsView->setScene(_scene);
-
-	addNewSquareItem(_defaultSquareParams);
-	addNewSquareItem(_defaultSquareParams);
-	addNewCircleItem(_defaultCircleParams);
-	addNewCircleItem(_defaultCircleParams);
 }
 
 void MainWindow::addNewSquareItem(squareParams params)
@@ -42,16 +41,31 @@ void MainWindow::addItemToScene(MoveItem *item)
 {
 	_scene->addItem(item);
 	bindItemToScene(item);
+	emit itemAddedToScene(item);
 }
 
 void MainWindow::bindItemToScene(MoveItem *item)
 {
 	QObject::connect(item, &MoveItem::itemSelected, _scene, &GridScene::on_sceneItemSelected);
+	QObject::connect(item, &MoveItem::nameChanged, _scene, &GridScene::on_itemNameChanged);
 }
 
 void MainWindow::bindSceneAndRedactorsManager()
 {
 	QObject::connect(_scene, &GridScene::sceneItemSelected, _redManager, &redactorsManager::changeRedactedItem);
+}
+void MainWindow::bindSelfAndItemListManager()
+{
+	QObject::connect(this, &MainWindow::itemAddedToScene, _listManager, &itemListManager::on_itemAddedToScene);
+}
+
+void MainWindow::bindSceneAndItemListManager()
+{
+	QObject::connect(_scene, &GridScene::sceneItemNameChanged, _listManager, &itemListManager::on_sceneItemNameChanged);
+	QObject::connect(_scene, &GridScene::sceneItemSelected, _listManager, &itemListManager::on_itemOnSceneSelected);
+	QObject::connect(_scene, &GridScene::sceneItemDeleted, _listManager, &itemListManager::on_itemOnSceneDeleted);
+	QObject::connect(_listManager, &itemListManager::selectSceneItem, _scene, &GridScene::on_selectSceneItem);
+	QObject::connect(_listManager, &itemListManager::deleteSceneItem, _scene, &GridScene::on_deleteSceneItem);
 }
 
 void MainWindow::setDefaultSquareParams()

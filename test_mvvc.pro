@@ -32,7 +32,8 @@ SOURCES += \
     squareredactor.cpp \
     redactorsmanager.cpp \
     circleitem.cpp \
-    circleredactor.cpp
+    circleredactor.cpp \
+    itemlistmanager.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -44,7 +45,8 @@ HEADERS += \
     redactorsmanager.h \
     circleparams.h \
     circleitem.h \
-    circleredactor.h
+    circleredactor.h \
+    itemlistmanager.h
 
 FORMS += \
         mainwindow.ui \

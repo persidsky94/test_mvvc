@@ -12,6 +12,7 @@ public:
 	~squareItem();
 	squareParams getParams();
 	void setParams(squareParams params);
+	QString getName() {return getParams().name;}
 
 signals:
 	void paramsChanged(squareParams params);

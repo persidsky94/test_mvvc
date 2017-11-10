@@ -52,10 +52,15 @@ void squareItem::on_positionIsSet()
 void squareItem::setParams(squareParams params)
 {
 	auto prevBoundingRect = boundingRect();
+	bool name_has_changed = 0;
+	if (params.name != _params.name)
+		name_has_changed = 1;
 	_params = params;
 	auto newCoordinates = QPointF(_params.x, _params.y);
 	setPos(newCoordinates);
 	auto curBoundingRect = boundingRect();
+	if (name_has_changed)
+		emit nameChanged(this);
 	emit paramsChanged(_params);
 	if (this->scene())
 	{

@@ -12,6 +12,7 @@ public:
 	~circleItem();
 	circleParams getParams();
 	void setParams(circleParams params);
+	QString getName() {return getParams().name;}
 
 signals:
 	void paramsChanged(circleParams params);
